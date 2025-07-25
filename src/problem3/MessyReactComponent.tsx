@@ -38,10 +38,13 @@ interface Props extends BoxProps {
  * 
  * Further, we should choose 1 type for using, I never see this before, and destructuring props with shorter way.
  *   EX: 
- *     1. const WalletPage: React.FC<Props> = ({ childrend, ... rest })
- *     2. const WalletPage = ({ childrend, ... rest }: Props)
+ *     1. const WalletPage: React.FC<Props> = ({ childrend, ...restProps })
+ *     2. const WalletPage = ({ childrend, ...restProps }: Props)
  */
 const WalletPage: React.FC<Props> = (props: Props) => {
+    /**
+     * rename rest to restProps make it easier to understand
+     */
   const { children, ...rest } = props;
   /**
    * It is better to declare variable with type.
@@ -52,7 +55,7 @@ const WalletPage: React.FC<Props> = (props: Props) => {
    *    interface Price {
    *        [key: string]: number;
    *    }
-   *    const prices: Price[] = usePrices(); 
+   *    const prices: Price = usePrices(); 
    */
   const balances = useWalletBalances();
   const prices = usePrices();
@@ -82,7 +85,7 @@ const WalletPage: React.FC<Props> = (props: Props) => {
 /**
  * This is not clean and hard to maintenance:
  * 1. First thing we should define a function to visible all variables needed for this block code,
- *   then we will easy to check when it is need to be rerendered.
+ *   then we will easy to check when it is needed to be rerendered.
  *   In this case `prices` is not need to include in dependencies of useMemo
  * 2. Maybe we need to consider using useMemo or make sure formatting and ordering the values returned from
  *    useWalletBalances function. I usually use useState for this case.
@@ -114,6 +117,10 @@ const WalletPage: React.FC<Props> = (props: Props) => {
 		  } else if (rightPriority > leftPriority) {
 		    return 1;
 		  }
+
+          /**
+           * missing default return
+           */
     });
   }, [balances, prices]);
 
