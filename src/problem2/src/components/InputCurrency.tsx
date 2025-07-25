@@ -27,8 +27,10 @@ interface InputProps {
     value?: string;
     currencySelected?: Currency;
     currencies: Currency[];
+    currencySearchContent?: string;
     onChange: (val: string) => void;
     onCurrencyChange: (val: Currency) => void;
+    onSearchChange: (val: string) => void;
 };
 const InputCurrency = ({
     id,
@@ -36,8 +38,10 @@ const InputCurrency = ({
     value,
     currencySelected,
     currencies,
+    currencySearchContent,
     onChange,
-    onCurrencyChange
+    onCurrencyChange,
+    onSearchChange,
 }: InputProps) => {
     const [isError, setIsError] = useState(false);
 
@@ -68,6 +72,8 @@ const InputCurrency = ({
                 input: {
                     endAdornment: <InputAdornment position="end">
                         <CurrencySelect
+                            currencySearchContent={currencySearchContent}
+                            onSearchChange={onSearchChange}
                             value={currencySelected}
                             options={currencies}
                             onChange={currencySelectedHandler}
@@ -81,9 +87,11 @@ const InputCurrency = ({
 interface CurrencySelectProps {
     value?: Currency;
     options: Currency[];
+    currencySearchContent?: string;
+    onSearchChange: (val: string) => void;
     onChange: (currency: Currency) => void;
 }
-const CurrencySelect = ({value, options, onChange}: CurrencySelectProps) => {
+const CurrencySelect = ({value, options, currencySearchContent, onSearchChange, onChange}: CurrencySelectProps) => {
     const [isLoading, setIsLoading] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
     const [displayOptions, setDisplayOptions] = useState<Currency[]>([]);
@@ -99,17 +107,7 @@ const CurrencySelect = ({value, options, onChange}: CurrencySelectProps) => {
     };
 
     const onSearchHandler = (val: string) => {
-        if (!options) {
-            return;
-        }
-
-        if (isEmpty(val)) {
-            return setDisplayOptions(options);
-        }
-
-        setDisplayOptions(filter(options, (option: Currency) => {
-            return includes(lowerCase(option.currency), lowerCase(val));
-        }));
+        onSearchChange(val);
     };
 
     const onSelectedCurrencyHandler = (currency: Currency) => {
@@ -125,7 +123,22 @@ const CurrencySelect = ({value, options, onChange}: CurrencySelectProps) => {
         setTimeout(() => {
             setIsLoading(false);
         }, DELAY_TIME);
-    }, [anchorEl, displayOptions])
+    }, [anchorEl, displayOptions]);
+
+    useEffect(() => {
+        //setSearchValue(currencySearchContent);
+        if (!options) {
+            return;
+        }
+
+        if (isEmpty(currencySearchContent)) {
+            return setDisplayOptions(options);
+        }
+
+        setDisplayOptions(filter(options, (option: Currency) => {
+            return includes(lowerCase(option.currency), lowerCase(currencySearchContent));
+        }));
+    }, [currencySearchContent, options]);
 
     return (<>
         <Box sx={{width: '100px'}} onClick={handleClick}>
@@ -164,6 +177,7 @@ const CurrencySelect = ({value, options, onChange}: CurrencySelectProps) => {
                     size="small"
                     label={'Search'}
                     id="search-outlined-start-adornment"
+                    value={currencySearchContent}
                     onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                         onSearchHandler(event.target.value);
                     }}

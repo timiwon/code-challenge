@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import ImportExportOutlinedIcon from '@mui/icons-material/ImportExportOutlined';
 
-import { fetchRate } from "../api";
+import { fetchRate } from "../lib/api";
 import InputCurrency from "./InputCurrency";
 import type { Currency } from "../types";
 import { DELAY_TIME } from "../lib/constants";
@@ -32,6 +32,8 @@ const ConvertCurrentcy = () => {
     const [from, setFrom] = useState<string>('');
     const [currencyTo, setCurrencyTo] = useState<Currency | undefined>(undefined);
     const [to, setTo] = useState<string>('');
+    const [currencyFromSearchContent, setCurrencyFromSearchContent] = useState('');
+    const [currencyToSearchContent, setCurrencyToSearchContent] = useState('');
 
     const [isSwitch, setIsSwitch] = useState(false);
 
@@ -44,6 +46,7 @@ const ConvertCurrentcy = () => {
     const switchCurrency = () => {
         let iFrom = from;
         let iCF = currencyFrom;
+        let searchFromContent = currencyFromSearchContent;
 
         if (from === to && currencyFrom?.currency === currencyTo?.currency) {
             return;
@@ -51,16 +54,28 @@ const ConvertCurrentcy = () => {
 
         setIsLoading(true);
         setIsSwitch(true);
+
         setFrom(to);
         setCurrencyFrom(currencyTo);
+        setCurrencyFromSearchContent(currencyToSearchContent);
+
         setTo(iFrom);
         setCurrencyTo(iCF);
+        setCurrencyToSearchContent(searchFromContent)
     };
 
     const doneSwitching = () => {
         setIsSwitch(false);
         releaseLoading();
-    }
+    };
+
+    const onFromSearchChange = (val: string) => {
+        setCurrencyFromSearchContent(val);
+    };
+
+    const onToSearchChange = (val: string) => {
+        setCurrencyToSearchContent(val);
+    };
 
     useEffect(() => {
         doneSwitching();
@@ -172,6 +187,8 @@ const ConvertCurrentcy = () => {
                             currencies={currencies}
                             onChange={(amount) => setFrom(amount)}
                             onCurrencyChange={(currency) => setCurrencyFrom(currency)}
+                            currencySearchContent={currencyFromSearchContent}
+                            onSearchChange={onFromSearchChange}
                         />
                     </Box>
                 </Grid>
@@ -200,6 +217,8 @@ const ConvertCurrentcy = () => {
                             currencies={currencies}
                             onChange={(amount) => setTo(amount)}
                             onCurrencyChange={(currency) => setCurrencyTo(currency)}
+                            currencySearchContent={currencyToSearchContent}
+                            onSearchChange={onToSearchChange}
                         />
                     </Box>
                 </Grid>
